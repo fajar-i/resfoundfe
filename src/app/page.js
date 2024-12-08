@@ -20,24 +20,20 @@ async function getData() {
   return res.json();
 }
 
-const Surveys = ({id, title, description }) => {
+const Surveys = ({id, title, description, onEdit, onDelete }) => {
   return (
     <div className="menu-item" data-id={id}>
       <div className="menu-item-info">
         <div className="menu-item-name">{title}</div>
+        <div className="menu-item-description">{description}</div>
       </div>
-
+        
       <div className="menu-item-actions">
-        <button className="edit-button" onClick={onEdit}>
-          Edit
-        </button>
-
-        <button
-          className="delete-button"
+        <button className="edit-button" onClick={onEdit}>Edit</button>
+        <button className="delete-button"
           onClick={() => {
             deleteMenu(id).then(() => onDelete(id));
-          }}
-        >
+          }}>
           Delete
         </button>
 
@@ -47,7 +43,7 @@ const Surveys = ({id, title, description }) => {
 };
 
 export default function Page() {
-  const [menuItems, setMenuItems] = useState(null);
+  const [menuItems, setMenuItems] = useState([]);
   const router = useRouter();
   const params = useSearchParams();
 
@@ -60,10 +56,15 @@ export default function Page() {
   // Fetch menu items on component mount
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getData();
-      setMenuItems(data);
+      try{
+
+        const data = await getData();
+        setMenuItems(data);
+      } catch (error){
+        console.error(error);
+      }
     };
-    fetchData().catch(console.error);
+    fetchData();
   }, []);
 
   // Detect changes in URL parameters for success messages
@@ -103,9 +104,9 @@ export default function Page() {
           item.
         </p>
       )}
-      {menuItems ? (
+      {menuItems.length > 0 ? (
         menuItems.map((item) => (
-          <menuItems
+          <Surveys
             key={item.id}
             id={item.id}
             title={item.title}
