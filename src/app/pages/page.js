@@ -2,29 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-/**
- * Sends a POST request to create a new menu item.
- * @param {Object} data The menu item data to be sent.
- */
-async function createMenu(data) {
-    const res = await fetch("http://127.0.0.1:8000/api/survey/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...data, user: "1" }),
-    });
-  
-    console.log(res);
-    if (!res.ok) {
-      const error = await res.json();
-      console.error("API Error Response:", error);
-      throw new Error(`Error: ${res.status}`);
-    }
-    return res.json();
-  }
-  
+import createSurvey from "../api/survey";
 
 const Page = () => {
   const router = useRouter();
@@ -35,15 +13,17 @@ const Page = () => {
   const onFinish = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    setError(null); // Clear previous errors
+    setError(null); 
+
     try {
-      await createMenu(formData);
+      await createSurvey(formData);
       router.replace("/?action=add");
     } catch (err) {
       setError(`Failed to create survey: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
+    
   };
 
   useEffect(() => {

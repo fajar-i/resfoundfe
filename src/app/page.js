@@ -1,24 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-async function deleteMenu(id) {
-  const res = await fetch(`http://127.0.0.1:8000/api/survey/${id}/`, {
-    method: "DELETE",
-  });
-  if (!res.ok) {
-    throw new Error("Failed to retrieve survey");
-  }
-  return Promise.resolve();
-}
-
-async function getData() {
-  const res = await fetch("http://127.0.0.1:8000/api/survey/");
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  return res.json();
-}
+import { getSurveys, deleteSurvey } from "./api/survey";
 
 const Surveys = ({id, title, description, onEdit, onDelete }) => {
   return (
@@ -32,7 +15,7 @@ const Surveys = ({id, title, description, onEdit, onDelete }) => {
         <button className="edit-button" onClick={onEdit}>Edit</button>
         <button className="delete-button"
           onClick={() => {
-            deleteMenu(id).then(() => onDelete(id));
+            deleteSurvey(id).then(() => onDelete(id));
           }}>
           Delete
         </button>
@@ -58,7 +41,7 @@ export default function Page() {
     const fetchData = async () => {
       try{
 
-        const data = await getData();
+        const data = await getSurveys();
         setMenuItems(data);
       } catch (error){
         console.error(error);
@@ -98,12 +81,13 @@ export default function Page() {
       <button className="add-button" onClick={() => router.push("/add")}>
         Add
       </button>
+      
       {displaySuccessMessage.show && (
         <p className="success-message">
-          {displaySuccessMessage.type === "add" ? "Added a" : "Modified a"} menu
-          item.
+          {displaySuccessMessage.type === "add" ? "Added a" : "Modified a"} menu item.
         </p>
       )}
+
       {menuItems.length > 0 ? (
         menuItems.map((item) => (
           <Surveys
