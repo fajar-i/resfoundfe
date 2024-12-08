@@ -13,6 +13,11 @@ pnpm dev
 # or
 bun dev
 ```
+run django server in different terminal 
+
+```bash
+py manage.py runserver 127.0.0.1:8000
+```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
