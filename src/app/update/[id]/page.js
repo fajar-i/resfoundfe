@@ -1,37 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { createSurvey } from "./../api/survey";
+import { useParams, useRouter } from "next/navigation";
+import { getSurveys, updateSurvey } from "./../../../app/api/survey";
 
-const Page = () => {
+export default function EditSurvey(){
+  const [formData, setFormData] = useState({title:"", description:"", user:"1"});
   const router = useRouter();
-  const [formData, setFormData] = useState({ title: "", description: "", user:"1"}); //ganti dengan user id asli
-  const [isLoading, setIsLoading] = useState(false);
+  const { id } = useParams();
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onFinish = async (event) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setError(null); 
+  useEffect(()=>{
+    const fetchSurvey = async()=>{
+      try{
+        const survey = await getSurveys(id);
+        setFormData({
+          title: survey.title || "",
+          description: survey.description || "",
+          user: "1", // Default user ID
+        });
+      } catch (error){
+        setError(`Failed to retrieve survey: ${err.message}`);
+      }
+    };
+    fetchSurvey();
+  }, [id]);
 
-    try {
-      await createSurvey(formData);
-      router.replace("/?action=add");
-    } catch (err) {
-      setError(`Failed to create survey: ${err.message}`);
-    } finally {
-      setIsLoading(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try{
+      await updateSurvey(id, formData);
+      router.push("/");
+    } catch (error){
+      setError(`Failed to update survey: ${err.message}`);
     }
-    
   };
 
-  useEffect(() => {
-    return () => setIsLoading(false);
-  }, []);
-
-  return (
-    <form onSubmit={onFinish}>
+  return(
+    <form onSubmit={handleSubmit}>
       <div className="form-item">
         <label htmlFor="title">Title</label>
         <input
@@ -63,6 +70,5 @@ const Page = () => {
       </div>
     </form>
   );
-};
+}
 
-export default Page;

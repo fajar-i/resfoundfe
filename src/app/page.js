@@ -78,7 +78,7 @@ export default function Page() {
 
   return (
     <div>
-      <button className="add-button" onClick={() => router.push("/add")}>
+      <button className="add-button" onClick={() => router.push("/pages")}>
         Add
       </button>
       

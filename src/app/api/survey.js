@@ -5,11 +5,13 @@ import { getSurveys, createSurvey, updateSurvey, deleteSurvey } from "../api/sur
 
 const API_BASE = "http://127.0.0.1:8000/api/survey/";
 
-export async function getSurveys() {
-  const res = await fetch(API_BASE);
+export async function getSurveys(id) {
+  const url = id ? `${API_BASE} ${id}` : API_BASE; // Fetch all surveys if no ID is provided
+  const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch surveys");
   return res.json();
 }
+
 
 export async function createSurvey(data) {
   const res = await fetch(API_BASE, {
