@@ -63,7 +63,7 @@ export default function EditSurvey() {
     try {
       await updateSurvey(id, formData);
       await updatePublish(id, publishData);
-      router.push("/");
+      window.location.href = "http://127.0.0.1:8000/list_my_survey/";
     } catch (error) {
       setError(`Failed to update survey: ${error.message}`);
     } finally {
