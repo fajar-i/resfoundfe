@@ -5,6 +5,7 @@ const API_BASE = "http://127.0.0.1:8000/api/profile/";
 
 export async function getProfile(id) {
   const url = id ? `${API_BASE}${id}` : API_BASE; 
+  console.log(url)
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch Profilees");
   return res.json();
