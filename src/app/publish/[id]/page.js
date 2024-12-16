@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getSurveys, updateSurvey } from "./../../../app/api/survey";
 import { getPublish, updatePublish } from "./../../../app/api/publish";
+import { getProfile, updateProfile } from "./../../../app/api/profile";
 
 export default function EditSurvey() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export default function EditSurvey() {
     user: "",
     opening_time: "",
     closing_time: "",
+    total_price: "",
     status: false,
   });
   const [publishData, setPublishData] = useState({
@@ -19,10 +21,16 @@ export default function EditSurvey() {
     token_debit: "",
     limit: "",
   });
-  const router = useRouter();
+  const [ProfileData, setProfileData] = useState({
+    id: "",
+    user: "",
+    respoint: "",
+  });
+
   const { id } = useParams();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const isSubmitDisabled = parseInt(publishData.token_debit) > parseInt(ProfileData.respoint);
 
   useEffect(() => {
     const fetchSurvey = async () => {
@@ -34,6 +42,7 @@ export default function EditSurvey() {
           user: survey.user || "",
           opening_time: survey.opening_time ? survey.opening_time.split("T")[0] : "",
           closing_time: survey.closing_time ? survey.closing_time.split("T")[0] : "",
+          total_price: survey.total_price || "",
           status: survey.status || false,
         });
       } catch (error) {
@@ -53,6 +62,21 @@ export default function EditSurvey() {
         setError(`Failed to retrieve Publish Data: ${error.message}`);
       }
     };
+
+    const fetchProfile = async () => {
+      try {
+        const profile = await getProfile(id);
+        setProfileData({
+          id: profile.id,
+          user: profile.user || 0,
+          respoint: profile.respoint || 0,
+        });
+      } catch (error) {
+        setError(`Failed to retrieve Profile Data: ${error.message}`);
+      }
+    };
+
+    fetchProfile();
     fetchPublish();
     fetchSurvey();
   }, [id]);
@@ -60,6 +84,14 @@ export default function EditSurvey() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Validate that token_debit does not exceed respoint
+    if (parseInt(publishData.token_debit) > parseInt(ProfileData.respoint)) {
+      setError("Token debit cannot exceed your available Respoints.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await updateSurvey(id, formData);
       await updatePublish(id, publishData);
@@ -74,6 +106,8 @@ export default function EditSurvey() {
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Publish Survey</h2>
+      <h2 className="mb-4">Respoint : {ProfileData.respoint}</h2>
+      <h2 className="mb-4">Survey Price : {formData.total_price}</h2>
       <form onSubmit={handleSubmit} className="needs-validation">
         <div className="mb-3">
           <label htmlFor="title" className="form-label">Title</label>
@@ -151,7 +185,13 @@ export default function EditSurvey() {
               setPublishData({ ...publishData, token_debit: event.target.value })
             }
           />
+          {parseInt(publishData.token_debit) > parseInt(ProfileData.respoint) && (
+            <div className="text-danger">
+              Token debit exceeds available Respoints.
+            </div>
+          )}
         </div>
+
         <div className="mb-3">
           <label htmlFor="limit" className="form-label">Limit</label>
           <input
@@ -168,13 +208,13 @@ export default function EditSurvey() {
 
         {error && <div className="alert alert-danger">{error}</div>}
         <button
-          disabled={isLoading}
+          disabled={isLoading || isSubmitDisabled}
           className="btn btn-primary"
           type="submit"
         >
           {isLoading ? "Submitting..." : "Submit"}
         </button>
       </form>
-    </div>
+    </div >
   );
 }
