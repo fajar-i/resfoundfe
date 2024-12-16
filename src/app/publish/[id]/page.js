@@ -47,6 +47,7 @@ export default function EditSurvey() {
         setError(`Failed to retrieve survey: ${error.message}`);
       }
     };
+    fetchSurvey();
 
     const fetchPublish = async () => {
       try {
@@ -60,10 +61,11 @@ export default function EditSurvey() {
         setError(`Failed to retrieve Publish Data: ${error.message}`);
       }
     };
+    fetchPublish();
 
     const fetchProfile = async () => {
       try {
-        const profile = await getProfile(id);
+        const profile = await getProfile(formData.user);
         setProfileData({
           respoint: profile.respoint || 0,
         });
@@ -71,10 +73,8 @@ export default function EditSurvey() {
         setError(`Failed to retrieve Profile Data: ${error.message}`);
       }
     };
-
     fetchProfile();
-    fetchPublish();
-    fetchSurvey();
+
   }, [id]);
 
   const handleSubmit = async (e) => {
