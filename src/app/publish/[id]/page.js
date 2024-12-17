@@ -62,9 +62,12 @@ export default function EditSurvey() {
       }
     };
     fetchPublish();
+  }, [id]);
 
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
+        if (!formData.user) return; // Avoid making the API call if `user` is not yet available.
         const profile = await getProfile(formData.user);
         setProfileData({
           respoint: profile.respoint || 0,
@@ -74,8 +77,8 @@ export default function EditSurvey() {
       }
     };
     fetchProfile();
+  }, [formData.user]); // Only trigger when `formData.user` changes.
 
-  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -90,7 +93,7 @@ export default function EditSurvey() {
 
     try {
       await updateSurvey(id, formData);
-      await updatePublish(formData.user, publishData);
+      await updatePublish(id, publishData);
       console.log(formData.user)
       window.location.href = "http://127.0.0.1:8000/list_my_survey/";
     } catch (error) {
