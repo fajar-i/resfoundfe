@@ -83,7 +83,6 @@ export default function EditSurvey() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
     // Validate that token_debit does not exceed respoint
     if (parseInt(publishData.token_debit) > parseInt(ProfileData.respoint)) {
       setError("Token debit cannot exceed your available Respoints.");
@@ -94,6 +93,7 @@ export default function EditSurvey() {
     try {
       await updateSurvey(id, formData);
       await updatePublish(id, publishData);
+      await updateProfile(formData.user, ProfileData);
       console.log(formData.user)
       window.location.href = "http://127.0.0.1:8000/list_my_survey/";
     } catch (error) {
@@ -181,9 +181,19 @@ export default function EditSurvey() {
             name="token_debit"
             className="form-control"
             value={publishData.token_debit}
-            onChange={(event) =>
-              setPublishData({ ...publishData, token_debit: event.target.value })
-            }
+            onChange={(event) => {
+              const prevTokenDebit = parseInt(publishData.token_debit) || 0; // Ensure prevTokenDebit is a number
+              const tokenDebitValue = parseInt(event.target.value) || 0; // Ensure tokenDebitValue is a number
+              const addedTokenDebit = tokenDebitValue - prevTokenDebit;
+
+              if (addedTokenDebit <= ProfileData.respoint) {
+                setPublishData({ ...publishData, token_debit: tokenDebitValue });
+                setProfileData({
+                  ...ProfileData,
+                  respoint: ProfileData.respoint - addedTokenDebit, // Deduct addedTokenDebit
+                });
+              }
+            }}
           />
           {parseInt(publishData.token_debit) > parseInt(ProfileData.respoint) && (
             <div className="text-danger">
@@ -191,6 +201,8 @@ export default function EditSurvey() {
             </div>
           )}
         </div>
+
+
 
         <div className="mb-3">
           <label htmlFor="limit" className="form-label">Limit</label>
