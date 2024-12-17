@@ -28,7 +28,7 @@ export default function EditSurvey() {
   const { id } = useParams();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const isSubmitDisabled = parseInt(publishData.token_debit) > parseInt(ProfileData.respoint);
+  const isSubmitDisabled = 0 > parseInt(ProfileData.respoint);
 
   useEffect(() => {
     const fetchSurvey = async () => {
@@ -84,7 +84,7 @@ export default function EditSurvey() {
     e.preventDefault();
     setIsLoading(true);
     // Validate that token_debit does not exceed respoint
-    if (parseInt(publishData.token_debit) > parseInt(ProfileData.respoint)) {
+    if (0 > parseInt(ProfileData.respoint)) {
       setError("Token debit cannot exceed your available Respoints.");
       setIsLoading(false);
       return;
@@ -195,7 +195,7 @@ export default function EditSurvey() {
               }
             }}
           />
-          {parseInt(publishData.token_debit) > parseInt(ProfileData.respoint) && (
+          {0 > parseInt(ProfileData.respoint) && (
             <div className="text-danger">
               Token debit exceeds available Respoints.
             </div>
